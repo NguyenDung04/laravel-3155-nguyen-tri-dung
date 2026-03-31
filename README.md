@@ -39,8 +39,8 @@ Mỗi module đều áp dụng đầy đủ:
 ### 1. Clone project
 
 ```bash
-git clone https://github.com/your-username/laravel-project.git
-cd laravel-project
+git clone -b bai2_2 https://github.com/NguyenDung04/laravel-3155-nguyen-tri-dung.git bai2_2
+cd .\bai2_2\
 ```
 
 ---
@@ -62,22 +62,17 @@ cp .env.example .env
 Sửa database:
 
 ```env
-DB_DATABASE=laravel_db
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=laravel_2_2
 DB_USERNAME=root
 DB_PASSWORD=
 ```
 
 ---
 
-### 4. Generate key
-
-```bash
-php artisan key:generate
-```
-
----
-
-### 5. Chạy migration + seed
+### 4. Chạy migration + seed mẫu
 
 ```bash
 php artisan migrate:fresh --seed
@@ -85,11 +80,13 @@ php artisan migrate:fresh --seed
 
 ---
 
-### 6. Chạy server
+### 5. Chạy server
 
 ```bash
 php artisan serve
 ```
+
+---
 
 👉 Truy cập:
 
@@ -283,9 +280,8 @@ appointments: date, time
 
 ## 👨‍💻 Tác giả
 
-- Sinh viên CNTT
-- Laravel Practice Project
-- Nguyễn Trí Dũng
+- Họ và tên: Nguyễn Trí Dũng
+- Mã sinh viên: 20223155
 
 ---
 
