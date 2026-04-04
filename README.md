@@ -1,25 +1,26 @@
-# 🚀 Laravel Practice – Student Management System (Full 5 Modules)
+# 🚀 Laravel Practice – Employee Management System (Chapter 3)
 
-Ứng dụng được xây dựng bằng Laravel nhằm thực hành các kiến thức quan trọng: MVC, Migration, Validation, CRUD, và xử lý logic thực tế.
+Ứng dụng được xây dựng bằng Laravel nhằm thực hành các kiến thức: MVC, Model, Migration, CRUD, Relationship, Pagination, Component và Dashboard.
 
 ---
 
 ## 📌 Giới thiệu
 
-Project gồm 5 module chính:
+Project gồm các nội dung chính trong chương 3:
 
-1. 🎓 Quản lý sinh viên
-2. 📦 Quản lý sản phẩm
-3. 📘 Đăng ký môn học
-4. 🛒 Hệ thống đơn hàng
-5. 📅 Hệ thống đặt lịch
+1. 👨‍💼 Quản lý nhân viên (Employee)
+2. 🏢 Quản lý phòng ban (Department)
+3. 🔗 Quan hệ giữa các Model
+4. 📄 CRUD hoàn chỉnh
+5. 📊 Dashboard thống kê
 
-Mỗi module đều áp dụng đầy đủ:
+Mỗi phần đều áp dụng:
 
 - MVC (Model – View – Controller)
-- Validation
-- Database Migration
-- UI Bootstrap
+- ORM (Eloquent)
+- Migration
+- Blade Template
+- Pagination
 
 ---
 
@@ -29,8 +30,7 @@ Mỗi module đều áp dụng đầy đủ:
 - PHP
 - MySQL
 - Blade Template
-- Bootstrap 5
-- Faker (Factory)
+- Bootstrap (tuỳ chọn)
 
 ---
 
@@ -39,8 +39,11 @@ Mỗi module đều áp dụng đầy đủ:
 ### 1. Clone project
 
 ```bash
-git clone -b bai2_2 https://github.com/NguyenDung04/laravel-3155-nguyen-tri-dung.git bai2_2
-cd .\bai2_2\
+git clone -b bai3_1 https://github.com/NguyenDung04/laravel-3155-nguyen-tri-dung.git bai3_1
+```
+
+```bash
+cd .\bai3_1\
 ```
 
 ---
@@ -65,17 +68,17 @@ Sửa database:
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=laravel_2_2
+DB_DATABASE=laravel_chapter3
 DB_USERNAME=root
 DB_PASSWORD=
 ```
 
 ---
 
-### 4. Chạy migration + seed mẫu
+### 4. Chạy migration
 
 ```bash
-php artisan migrate:fresh --seed
+php artisan migrate
 ```
 
 ---
@@ -91,7 +94,7 @@ php artisan serve
 👉 Truy cập:
 
 ```
-http://127.0.0.1:8000
+http://127.0.0.1:8000/employees
 ```
 
 ---
@@ -101,20 +104,19 @@ http://127.0.0.1:8000
 ```
 app/
  ├── Models/
+ │    ├── Employee.php
+ │    └── Department.php
  ├── Http/Controllers/
+ │    └── EmployeeController.php
 
 database/
  ├── migrations/
- ├── factories/
- ├── seeders/
 
 resources/views/
- ├── students/
- ├── products/
- ├── courses/
- ├── orders/
- ├── bookings/
+ ├── employees/
  ├── layouts/
+ ├── components/
+ └── dashboard.blade.php
 ```
 
 ---
@@ -127,154 +129,143 @@ User → Route → Controller → Model → Database → View
 
 ---
 
-# 🎓 Module 1: Quản lý sinh viên
+# 👨‍💼 Module 1: Quản lý nhân viên
 
 ### Chức năng:
 
-- Thêm sinh viên
+- Thêm nhân viên
 - Hiển thị danh sách
-- Tìm kiếm theo tên
-- Sắp xếp A-Z / Z-A
+- Cập nhật thông tin
+- Xóa nhân viên
 - Phân trang
 
-### Validation:
-
-- Email không trùng
-
 ### Database:
 
 ```
-students: id, name, major, email
+employees: id, name, email, position, department_id
 ```
 
 ---
 
-# 📦 Module 2: Quản lý sản phẩm
+# 🏢 Module 2: Quản lý phòng ban
 
 ### Chức năng:
 
-- Thêm sản phẩm
-- Xóa sản phẩm
-- Cập nhật tồn kho
-- Tìm kiếm
-
-### Trạng thái:
-
-- Hết hàng
-- Sắp hết (<5)
-- Còn hàng
-
-### Database:
-
-```
-products: id, name, price, quantity, category
-```
-
----
-
-# 📘 Module 3: Đăng ký môn học
-
-### Chức năng:
-
-- Thêm môn học
-- Đăng ký môn
+- Thêm phòng ban
 - Hiển thị danh sách
-
-### Logic:
-
-- Không đăng ký trùng
-- Tối đa 18 tín chỉ
+- Liên kết với nhân viên
 
 ### Database:
 
 ```
-students
-courses (credits)
-enrollments
+departments: id, name, description
 ```
 
 ---
 
-# 🛒 Module 4: Hệ thống đơn hàng
+# 🔗 Module 3: Quan hệ Model
 
-### Chức năng:
+### Quan hệ:
 
-- Tạo đơn hàng (nhiều sản phẩm)
-- Xem chi tiết đơn
-- Tính tổng tiền
+- Employee belongsTo Department
+- Department hasMany Employee
 
-### Trạng thái:
+### Hiển thị:
 
-- pending
-- processing
-- completed
-
-### Database:
-
-```
-orders
-order_items
+```blade
+{{ $emp->department->name }}
 ```
 
 ---
 
-# 📅 Module 5: Hệ thống đặt lịch
+# 📄 Module 4: CRUD hoàn chỉnh
 
 ### Chức năng:
 
-- Đặt lịch
-- Hủy lịch
-- Hiển thị danh sách
+- Create
+- Read
+- Update
+- Delete
 
-### Logic:
+### Route:
 
-- Không trùng giờ
-- Không đặt quá khứ
-
-### Database:
-
+```php
+Route::resource('employees', EmployeeController::class);
 ```
-appointments: date, time
+
+---
+
+# 📊 Module 5: Dashboard
+
+### Hiển thị:
+
+- Tổng nhân viên
+- Tổng phòng ban
+- 5 nhân viên mới nhất
+
+### Controller:
+
+```php
+$totalEmp = Employee::count();
+$totalDep = Department::count();
+$newEmp = Employee::latest()->take(5)->get();
 ```
 
 ---
 
 ## 🎨 Giao diện
 
-- Sử dụng Bootstrap 5
-- Theme sáng (white + blue)
-- UI/UX hiện đại
+- Blade Template
+- Layout master
+- Component Alert
+- UI đơn giản, dễ hiểu
 
 ---
 
-## 🔥 Dữ liệu mẫu (Factory)
+## 🔥 ORM vs SQL
 
-- Faker locale: `vi_VN`
-- Sinh dữ liệu:
-    - Tên tiếng Việt
-    - Sản phẩm thực tế
-    - Đơn hàng liên kết
-    - Lịch không trùng
+### ORM:
+
+```php
+Employee::where('position', 'Dev')->get();
+```
+
+### SQL:
+
+```sql
+SELECT * FROM employees WHERE position = 'Dev';
+```
+
+### So sánh:
+
+- ORM: dễ viết, dễ bảo trì
+- SQL: tối ưu hơn trong một số trường hợp
 
 ---
 
 ## ✅ Tiêu chí đạt được
 
-| Tiêu chí   | Trạng thái |
-| ---------- | ---------- |
-| MVC        | ✅         |
-| Migration  | ✅         |
-| CRUD       | ✅         |
-| Validation | ✅         |
-| UI         | ✅         |
+| Tiêu chí     | Trạng thái |
+| ------------ | ---------- |
+| MVC          | ✅         |
+| Migration    | ✅         |
+| CRUD         | ✅         |
+| Relationship | ✅         |
+| Pagination   | ✅         |
+| Dashboard    | ✅         |
 
 ---
 
 ## ⚠️ Lưu ý
 
-- Không viết HTML trong Controller
-- Bắt buộc dùng `@csrf`
-- Sử dụng Factory để tạo dữ liệu
+- Phải khai báo `$fillable` trong Model
+- Không viết logic trong View
+- Luôn dùng `@csrf` trong form
+- Kiểm tra null khi dùng quan hệ:
+
+```blade
+{{ $emp->department->name ?? 'Chưa có phòng' }}
+```
 
 ---
 
