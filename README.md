@@ -1,25 +1,28 @@
-# 🚀 Laravel Practice – Student Management System (Full 5 Modules)
+# 🚀 Laravel Practice – Product Management System (Chapter 3_2)
 
-Ứng dụng được xây dựng bằng Laravel nhằm thực hành các kiến thức quan trọng: MVC, Migration, Validation, CRUD, và xử lý logic thực tế.
+Ứng dụng được xây dựng bằng Laravel nhằm thực hành các kiến thức: MVC, Model, Migration, CRUD, Relationship, Pagination, Search, Upload và Dashboard.
 
 ---
 
 ## 📌 Giới thiệu
 
-Project gồm 5 module chính:
+Project gồm các nội dung chính trong chương 3:
 
-1. 🎓 Quản lý sinh viên
-2. 📦 Quản lý sản phẩm
-3. 📘 Đăng ký môn học
-4. 🛒 Hệ thống đơn hàng
-5. 📅 Hệ thống đặt lịch
+1. 📦 Quản lý sản phẩm (Product)
+2. 🗂️ Quản lý danh mục (Category)
+3. 🔗 Quan hệ giữa các Model
+4. 📄 CRUD hoàn chỉnh
+5. 📊 Dashboard thống kê
 
-Mỗi module đều áp dụng đầy đủ:
+Mỗi phần đều áp dụng:
 
 - MVC (Model – View – Controller)
-- Validation
-- Database Migration
-- UI Bootstrap
+- ORM (Eloquent)
+- Migration
+- Blade Template
+- Pagination
+- Search & Sort
+- Upload ảnh
 
 ---
 
@@ -29,8 +32,7 @@ Mỗi module đều áp dụng đầy đủ:
 - PHP
 - MySQL
 - Blade Template
-- Bootstrap 5
-- Faker (Factory)
+- Bootstrap / Tailwind (tuỳ chọn)
 
 ---
 
@@ -39,8 +41,11 @@ Mỗi module đều áp dụng đầy đủ:
 ### 1. Clone project
 
 ```bash
-git clone -b bai2_2 https://github.com/NguyenDung04/laravel-3155-nguyen-tri-dung.git bai2_2
-cd .\bai2_2\
+git clone -b bai3_2 https://github.com/NguyenDung04/laravel-3155-nguyen-tri-dung.git bai3_2
+```
+
+```bash
+cd bai3_2
 ```
 
 ---
@@ -65,22 +70,38 @@ Sửa database:
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=laravel_2_2
+DB_DATABASE=bai3_2
 DB_USERNAME=root
 DB_PASSWORD=
 ```
 
 ---
 
-### 4. Chạy migration + seed mẫu
+### 4. Generate key
 
 ```bash
-php artisan migrate:fresh --seed
+php artisan key:generate
 ```
 
 ---
 
-### 5. Chạy server
+### 5. Chạy migration
+
+```bash
+php artisan migrate
+```
+
+---
+
+### 6. Link storage (upload ảnh)
+
+```bash
+php artisan storage:link
+```
+
+---
+
+### 7. Chạy server
 
 ```bash
 php artisan serve
@@ -91,7 +112,7 @@ php artisan serve
 👉 Truy cập:
 
 ```
-http://127.0.0.1:8000
+http://127.0.0.1:8000/products
 ```
 
 ---
@@ -101,20 +122,19 @@ http://127.0.0.1:8000
 ```
 app/
  ├── Models/
+ │    ├── Product.php
+ │    └── Category.php
  ├── Http/Controllers/
+ │    └── ProductController.php
 
 database/
  ├── migrations/
- ├── factories/
- ├── seeders/
 
 resources/views/
- ├── students/
  ├── products/
- ├── courses/
- ├── orders/
- ├── bookings/
- ├── layouts/
+ ├── layout/
+ ├── components/
+ └── dashboard.blade.php
 ```
 
 ---
@@ -127,154 +147,184 @@ User → Route → Controller → Model → Database → View
 
 ---
 
-# 🎓 Module 1: Quản lý sinh viên
-
-### Chức năng:
-
-- Thêm sinh viên
-- Hiển thị danh sách
-- Tìm kiếm theo tên
-- Sắp xếp A-Z / Z-A
-- Phân trang
-
-### Validation:
-
-- Email không trùng
-
-### Database:
-
-```
-students: id, name, major, email
-```
-
----
-
-# 📦 Module 2: Quản lý sản phẩm
+# 📦 Module 1: Quản lý sản phẩm
 
 ### Chức năng:
 
 - Thêm sản phẩm
-- Xóa sản phẩm
-- Cập nhật tồn kho
-- Tìm kiếm
-
-### Trạng thái:
-
-- Hết hàng
-- Sắp hết (<5)
-- Còn hàng
-
-### Database:
-
-```
-products: id, name, price, quantity, category
-```
-
----
-
-# 📘 Module 3: Đăng ký môn học
-
-### Chức năng:
-
-- Thêm môn học
-- Đăng ký môn
 - Hiển thị danh sách
-
-### Logic:
-
-- Không đăng ký trùng
-- Tối đa 18 tín chỉ
+- Cập nhật sản phẩm
+- Xóa sản phẩm (có confirm)
+- Phân trang
 
 ### Database:
 
 ```
-students
-courses (credits)
-enrollments
+products: id, name, price, quantity, category_id, image
 ```
 
 ---
 
-# 🛒 Module 4: Hệ thống đơn hàng
+# 🗂️ Module 2: Quản lý danh mục
 
 ### Chức năng:
 
-- Tạo đơn hàng (nhiều sản phẩm)
-- Xem chi tiết đơn
-- Tính tổng tiền
-
-### Trạng thái:
-
-- pending
-- processing
-- completed
+- Thêm danh mục
+- Hiển thị danh mục
+- Liên kết với sản phẩm
 
 ### Database:
 
 ```
-orders
-order_items
+categories: id, name
 ```
 
 ---
 
-# 📅 Module 5: Hệ thống đặt lịch
+# 🔗 Module 3: Quan hệ Model
+
+### Quan hệ:
+
+- Product belongsTo Category
+- Category hasMany Product
+
+### Hiển thị:
+
+```blade
+{{ $product->category->name }}
+```
+
+---
+
+# 📄 Module 4: CRUD hoàn chỉnh
 
 ### Chức năng:
 
-- Đặt lịch
-- Hủy lịch
-- Hiển thị danh sách
+- Create
+- Read
+- Update
+- Delete
 
-### Logic:
+### Route:
 
-- Không trùng giờ
-- Không đặt quá khứ
-
-### Database:
-
+```php
+Route::resource('products', ProductController::class);
 ```
-appointments: date, time
+
+---
+
+# 📊 Module 5: Dashboard
+
+### Hiển thị:
+
+- Tổng sản phẩm
+- Tổng danh mục
+- 5 sản phẩm mới nhất
+
+### Controller:
+
+```php
+$totalProducts = Product::count();
+$totalCategories = Category::count();
+$latestProducts = Product::latest()->take(5)->get();
 ```
+
+---
+
+# 🔍 Module 6: Tìm kiếm & Sắp xếp
+
+### Tìm kiếm:
+
+```php
+$query->where('name', 'like', '%' . $request->keyword . '%');
+```
+
+### Sắp xếp:
+
+```php
+$query->orderBy('price', 'asc');
+$query->orderBy('price', 'desc');
+```
+
+---
+
+# 🖼️ Module 7: Upload ảnh
+
+- Lưu ảnh vào `storage/app/public/products`
+
+### Hiển thị:
+
+```blade
+<img src="{{ asset('storage/'.$product->image) }}">
+```
+
+---
+
+# ⚡ Tối ưu dữ liệu
+
+```php
+Product::with('category')->paginate(5);
+```
+
+👉 Tránh lỗi N+1 query
 
 ---
 
 ## 🎨 Giao diện
 
-- Sử dụng Bootstrap 5
-- Theme sáng (white + blue)
-- UI/UX hiện đại
+- Blade Template
+- Layout master
+- Component Alert
+- UI đơn giản, dễ hiểu
 
 ---
 
-## 🔥 Dữ liệu mẫu (Factory)
+## 🔥 ORM vs SQL
 
-- Faker locale: `vi_VN`
-- Sinh dữ liệu:
-    - Tên tiếng Việt
-    - Sản phẩm thực tế
-    - Đơn hàng liên kết
-    - Lịch không trùng
+### ORM:
+
+```php
+Product::where('price', '>', 100)->get();
+```
+
+### SQL:
+
+```sql
+SELECT * FROM products WHERE price > 100;
+```
+
+### So sánh:
+
+- ORM: dễ viết, dễ bảo trì
+- SQL: tối ưu hơn trong một số trường hợp
 
 ---
 
 ## ✅ Tiêu chí đạt được
 
-| Tiêu chí   | Trạng thái |
-| ---------- | ---------- |
-| MVC        | ✅         |
-| Migration  | ✅         |
-| CRUD       | ✅         |
-| Validation | ✅         |
-| UI         | ✅         |
+| Tiêu chí     | Trạng thái |
+| ------------ | ---------- |
+| MVC          | ✅         |
+| Migration    | ✅         |
+| CRUD         | ✅         |
+| Relationship | ✅         |
+| Pagination   | ✅         |
+| Dashboard    | ✅         |
+| Search/Sort  | ✅         |
+| Upload ảnh   | ✅         |
 
 ---
 
 ## ⚠️ Lưu ý
 
-- Không viết HTML trong Controller
-- Bắt buộc dùng `@csrf`
-- Sử dụng Factory để tạo dữ liệu
+- Phải khai báo `$fillable` trong Model
+- Không viết logic trong View
+- Luôn dùng `@csrf` trong form
+- Kiểm tra null:
+
+```blade
+{{ $product->category->name ?? 'Chưa có danh mục' }}
+```
 
 ---
 

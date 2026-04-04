@@ -2,19 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
-use App\Models\Product; // Import model Product
 
 class ProductController extends Controller
 {
-    // 📋 Danh sách
     public function index(Request $request)
     {
-        $query = Product::query();
+        $query = Product::with('category');
 
-        // 🔍 tìm kiếm
-        if ($request->search) {
-            $query->where('name','like','%'.$request->search.'%');
+        // search
+        if ($request->keyword) {
+            $query->where('name', 'like', '%' . $request->keyword . '%');
+        }
+
+        // sort
+        if ($request->sort == 'asc') {
+            $query->orderBy('price', 'asc');
+        } elseif ($request->sort == 'desc') {
+            $query->orderBy('price', 'desc');
         }
 
         $products = $query->paginate(5);
@@ -22,44 +29,71 @@ class ProductController extends Controller
         return view('products.index', compact('products'));
     }
 
-    // ➕ form thêm
     public function create()
     {
-        return view('products.create');
+        $categories = Category::all();
+        return view('products.create', compact('categories'));
     }
 
-    // 💾 lưu
     public function store(Request $request)
     {
         $request->validate([
-            'name'=>'required',
-            'price'=>'required|numeric|min:0',
-            'quantity'=>'required|integer|min:0',
-            'category'=>'required'
+            'name' => 'required',
+            'price' => 'required|numeric',
+            'quantity' => 'required|integer',
+            'category_id' => 'required',
+            'image' => 'required|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        Product::create($request->all());
+        $data = $request->all();
 
-        return redirect()->route('products.index')
-                         ->with('success','Thêm thành công');
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('products','public');
+        }
+
+        Product::create($data);
+
+        return redirect()->route('products.index')->with('success','Thêm thành công');
     }
 
-    // ❌ xóa
-    public function destroy($id)
-    {
-        Product::findOrFail($id)->delete();
-        return back();
-    }
-
-    // 🔄 cập nhật tồn kho
-    public function update(Request $request, $id)
+    public function edit($id)
     {
         $product = Product::findOrFail($id);
+        $categories = Category::all();
 
-        $product->update([
-            'quantity' => $request->quantity
+        return view('products.edit', compact('product','categories'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        return back();
+        $product = Product::findOrFail($id);
+        $data = $request->all();
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('products','public');
+        }
+
+        $product->update($data);
+
+        return redirect()->route('products.index')->with('success','Cập nhật thành công');
+    }
+    
+    public function destroy($id)
+    {
+        Product::destroy($id);
+        return back()->with('success','Xóa thành công');
+    }
+
+    public function dashboard()
+    {
+        return view('dashboard',[
+            'totalProducts' => Product::count(),
+            'totalCategories' => Category::count(),
+            'latestProducts' => Product::latest()->take(5)->get()
+        ]);
     }
 }
