@@ -1,4 +1,4 @@
-# 🚀 Laravel Practice – Product Management System (Chapter 3_2)
+# 🚀 Laravel Mini Project – Course Management System
 
 Ứng dụng được xây dựng bằng Laravel nhằm thực hành các kiến thức: MVC, Model, Migration, CRUD, Relationship, Pagination, Search, Upload và Dashboard.
 
@@ -6,23 +6,27 @@
 
 ## 📌 Giới thiệu
 
-Project gồm các nội dung chính trong chương 3:
+Project mô phỏng hệ thống quản lý khóa học trực tuyến (Course Management System).
 
-1. 📦 Quản lý sản phẩm (Product)
-2. 🗂️ Quản lý danh mục (Category)
-3. 🔗 Quan hệ giữa các Model
-4. 📄 CRUD hoàn chỉnh
+Gồm các chức năng chính:
+
+1. 📚 Quản lý khóa học (Course)
+2. 🎬 Quản lý bài học (Lesson)
+3. 👨‍🎓 Quản lý học viên (Student)
+4. 📝 Đăng ký khóa học (Enrollment)
 5. 📊 Dashboard thống kê
 
-Mỗi phần đều áp dụng:
+Áp dụng:
 
 - MVC (Model – View – Controller)
 - ORM (Eloquent)
 - Migration
 - Blade Template
 - Pagination
-- Search & Sort
+- Search & Filter
 - Upload ảnh
+- Soft Delete
+- Form Request Validation
 
 ---
 
@@ -41,11 +45,11 @@ Mỗi phần đều áp dụng:
 ### 1. Clone project
 
 ```bash
-git clone -b bai3_2 https://github.com/NguyenDung04/laravel-3155-nguyen-tri-dung.git bai3_2
+git clone -b bai3 https://github.com/NguyenDung04/laravel-3155-nguyen-tri-dung.git bai3
 ```
 
 ```bash
-cd bai3_2
+cd bai3
 ```
 
 ---
@@ -70,7 +74,7 @@ Sửa database:
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=bai3_2
+DB_DATABASE=laravel_3
 DB_USERNAME=root
 DB_PASSWORD=
 ```
@@ -112,7 +116,7 @@ php artisan serve
 👉 Truy cập:
 
 ```
-http://127.0.0.1:8000/products
+http://127.0.0.1:8000/courses
 ```
 
 ---
@@ -122,17 +126,23 @@ http://127.0.0.1:8000/products
 ```
 app/
  ├── Models/
- │    ├── Product.php
- │    └── Category.php
+ │    ├── Course.php
+ │    ├── Lesson.php
+ │    ├── Student.php
+ │    └── Enrollment.php
  ├── Http/Controllers/
- │    └── ProductController.php
+ │    ├── CourseController.php
+ │    ├── LessonController.php
+ │    └── EnrollmentController.php
 
 database/
  ├── migrations/
 
 resources/views/
- ├── products/
- ├── layout/
+ ├── courses/
+ ├── lessons/
+ ├── enrollments/
+ ├── layouts/
  ├── components/
  └── dashboard.blade.php
 ```
@@ -147,115 +157,152 @@ User → Route → Controller → Model → Database → View
 
 ---
 
-# 📦 Module 1: Quản lý sản phẩm
+# 📚 Module 1: Quản lý khóa học
 
 ### Chức năng:
 
-- Thêm sản phẩm
+- Thêm khóa học
 - Hiển thị danh sách
-- Cập nhật sản phẩm
-- Xóa sản phẩm (có confirm)
+- Cập nhật khóa học
+- Xóa mềm (Soft Delete)
+- Khôi phục khóa học
 - Phân trang
 
 ### Database:
 
 ```
-products: id, name, price, quantity, category_id, image
+courses: id, name, slug, price, description, image, status, deleted_at
 ```
 
 ---
 
-# 🗂️ Module 2: Quản lý danh mục
+# 🎬 Module 2: Quản lý bài học
 
 ### Chức năng:
 
-- Thêm danh mục
-- Hiển thị danh mục
-- Liên kết với sản phẩm
+- Thêm bài học theo khóa học
+- Hiển thị danh sách bài học theo khóa
+- Sắp xếp theo thứ tự (order)
+- Cập nhật / Xóa bài học
 
 ### Database:
 
 ```
-categories: id, name
+lessons: id, course_id, title, content, video_url, order
 ```
 
 ---
 
-# 🔗 Module 3: Quan hệ Model
+# 👨‍🎓 Module 3: Quản lý học viên
+
+### Chức năng:
+
+- Thêm học viên
+- Lưu thông tin: tên, email
+
+### Database:
+
+```
+students: id, name, email
+```
+
+---
+
+# 📝 Module 4: Đăng ký khóa học
+
+### Chức năng:
+
+- Đăng ký học viên vào khóa học
+- Hiển thị danh sách học viên theo khóa
+- Đếm số lượng học viên
+
+### Database:
+
+```
+enrollments: id, course_id, student_id
+```
+
+---
+
+# 🔗 Module 5: Quan hệ Model
 
 ### Quan hệ:
 
-- Product belongsTo Category
-- Category hasMany Product
+- Course hasMany Lesson
+- Course hasMany Enrollment
+- Student hasMany Enrollment
+- Course belongsToMany Student (qua enrollments)
 
-### Hiển thị:
+### Ví dụ:
 
 ```blade
-{{ $product->category->name }}
+{{ $course->lessons->count() }}
+{{ $course->students->count() }}
 ```
 
 ---
 
-# 📄 Module 4: CRUD hoàn chỉnh
+# 📄 Module 6: CRUD hoàn chỉnh
 
 ### Chức năng:
 
 - Create
 - Read
 - Update
-- Delete
+- Delete (Soft Delete)
 
 ### Route:
 
 ```php
-Route::resource('products', ProductController::class);
+Route::resource('courses', CourseController::class);
 ```
 
 ---
 
-# 📊 Module 5: Dashboard
+# 📊 Module 7: Dashboard
 
 ### Hiển thị:
 
-- Tổng sản phẩm
-- Tổng danh mục
-- 5 sản phẩm mới nhất
+- Tổng số khóa học
+- Tổng số học viên
+- Tổng doanh thu
+- Khóa học nhiều học viên nhất
+- 5 khóa học mới
 
 ### Controller:
 
 ```php
-$totalProducts = Product::count();
-$totalCategories = Category::count();
-$latestProducts = Product::latest()->take(5)->get();
+$totalCourses = Course::count();
+$totalStudents = Student::count();
+$totalRevenue = Course::sum('price');
+
+$topCourse = Course::withCount('enrollments')
+    ->orderByDesc('enrollments_count')
+    ->first();
+
+$newCourses = Course::latest()->take(5)->get();
 ```
 
 ---
 
-# 🔍 Module 6: Tìm kiếm & Sắp xếp
+# 🔍 Module 8: Tìm kiếm & Lọc
 
 ### Tìm kiếm:
 
 ```php
-$query->where('name', 'like', '%' . $request->keyword . '%');
+$query->where('name', 'like', '%' . $request->name . '%');
 ```
 
-### Sắp xếp:
+### Lọc:
 
 ```php
-$query->orderBy('price', 'asc');
-$query->orderBy('price', 'desc');
+$query->where('status', $request->status);
 ```
 
----
+### Khoảng giá:
 
-# 🖼️ Module 7: Upload ảnh
-
-- Lưu ảnh vào `storage/app/public/products`
-
-### Hiển thị:
-
-```blade
-<img src="{{ asset('storage/'.$product->image) }}">
+```php
+$query->whereBetween('price', [$min, $max]);
 ```
 
 ---
@@ -263,34 +310,78 @@ $query->orderBy('price', 'desc');
 # ⚡ Tối ưu dữ liệu
 
 ```php
-Product::with('category')->paginate(5);
+Course::with(['lessons', 'enrollments'])->paginate(10);
 ```
 
 👉 Tránh lỗi N+1 query
 
 ---
 
-## 🎨 Giao diện
+# 🧠 Scope (Advanced)
 
-- Blade Template
-- Layout master
-- Component Alert
-- UI đơn giản, dễ hiểu
+```php
+public function scopePublished($query)
+{
+    return $query->where('status', 'published');
+}
+
+public function scopePriceBetween($query, $min, $max)
+{
+    return $query->whereBetween('price', [$min, $max]);
+}
+```
 
 ---
 
-## 🔥 ORM vs SQL
+# 🧾 Form Request Validation
+
+```bash
+php artisan make:request CourseRequest
+```
+
+```php
+'name' => 'required',
+'price' => 'required|numeric|min:1'
+```
+
+---
+
+# 🖼️ Upload ảnh
+
+- Lưu ảnh vào `storage/app/public/courses`
+
+### Hiển thị:
+
+```blade
+<img src="{{ asset('storage/'.$course->image) }}">
+```
+
+---
+
+# 🎨 Giao diện
+
+- Layout master
+- Sidebar (Courses, Lessons, Enrollments)
+- Component:
+    - Alert
+    - Card
+    - Badge
+    - Table
+
+---
+
+# 🔥 ORM vs SQL
 
 ### ORM:
 
 ```php
-Product::where('price', '>', 100)->get();
+Course::where('price', '>', 100)->get();
 ```
 
 ### SQL:
 
 ```sql
-SELECT * FROM products WHERE price > 100;
+SELECT * FROM courses WHERE price > 100;
 ```
 
 ### So sánh:
@@ -302,16 +393,19 @@ SELECT * FROM products WHERE price > 100;
 
 ## ✅ Tiêu chí đạt được
 
-| Tiêu chí     | Trạng thái |
-| ------------ | ---------- |
-| MVC          | ✅         |
-| Migration    | ✅         |
-| CRUD         | ✅         |
-| Relationship | ✅         |
-| Pagination   | ✅         |
-| Dashboard    | ✅         |
-| Search/Sort  | ✅         |
-| Upload ảnh   | ✅         |
+| Tiêu chí           | Trạng thái |
+| ------------------ | ---------- |
+| MVC                | ✅         |
+| Migration          | ✅         |
+| CRUD               | ✅         |
+| Relationship       | ✅         |
+| Pagination         | ✅         |
+| Dashboard          | ✅         |
+| Search/Filter      | ✅         |
+| Upload ảnh         | ✅         |
+| Soft Delete        | ✅         |
+| Form Request       | ✅         |
+| Optimization (N+1) | ✅         |
 
 ---
 
@@ -323,7 +417,7 @@ SELECT * FROM products WHERE price > 100;
 - Kiểm tra null:
 
 ```blade
-{{ $product->category->name ?? 'Chưa có danh mục' }}
+{{ $course->image ?? 'no-image.png' }}
 ```
 
 ---
